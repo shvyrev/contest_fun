@@ -1,0 +1,53 @@
+version: "3.7"
+
+services:
+  infinispan:
+    image: infinispan/server:latest
+    environment:
+      USER: "admin"
+      PASS: "admin"
+    ports:
+      - 11222:11222
+
+  redis-redisbloom:
+    image: redislabs/rebloom:latest
+    ports:
+      - 6379:6379
+    depends_on:
+      - infinispan
+
+  mongo:
+    image: mongo:4.0.4
+    ports:
+      - 27017:27017
+    depends_on:
+      - redis-redisbloom
+
+  minio1:
+    image: minio/minio:latest
+    command: server /data
+    environment:
+      MINIO_ACCESS_KEY: "AKIAIOSFODNN7EXAMPLE"
+      MINIO_SECRET_KEY: "wJalrXUtnFEMIK7MDENGbPxRfiCYEXAMPLEKEY"
+    ports:
+      - 9000:9000
+    depends_on:
+      - mongo
+
+  parser:
+    image: parser:latest
+    env_file:
+      - parser.env
+    ports:
+      - 8888:8888
+    depends_on:
+      - minio1
+
+  core:
+    image: core:latest
+    env_file:
+      - core.env
+    ports:
+      - 8080:8080
+    depends_on:
+      - parser
