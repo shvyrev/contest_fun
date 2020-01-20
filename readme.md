@@ -23,6 +23,7 @@
  - [endpoint с Prometheus-метриками](#metrics)
  - [OpenAPI-документация](#swagger)
  - [Руководстве по эксплуатации](https://github.com/shvyrev/contest_fun/blob/master/runbook.pdf)
+ - [Клаассные фишки](#swagger)
  
 <a name="docker"></a>
 ## Getting Started
@@ -231,3 +232,12 @@ scrape_configs:
 endpoint /swagger-ui - Swagger UI
 endpoint /swagger - экспорт для клиентских приложений
 ```
+
+<a name="fishki"></a>
+#### Фишки
+##### Fault tolerance
+Добавил CircuitBreaker при обращении к кэшу. Ожидает прекращения доступа к InfiniSpan.
+И Retry, повторные попытки получения, если первые запросы завершились неудачно. Например при расхождении синхронизации Mongo и InfiniSpan.
+
+##### Exception Notification
+Добавил логирование ошибок в Sentry. Каждый exception который будет выкидываться в приложении, будет логирвоаться сортироваться по типу в Sentry.
